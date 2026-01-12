@@ -1,4 +1,4 @@
-export type RowMode = "workday" | "holiday" | "pto" | "weekend";
+export type RowMode = "workday" | "public_holiday" | "company_holiday" | "pto" | "weekend";
 
 export interface TimesheetRow {
   date: Date;

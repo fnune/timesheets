@@ -1,18 +1,18 @@
 import type { Settings, TimesheetRow, RowMode } from "~/types";
-import { formatDateLong, formatDateShort } from "~/utils/date";
+import { formatDateLong, formatDateShort, getMonthName } from "~/utils/date";
 import { calculateHours, calculateBreakHours, calculateOvertime, formatTime12h } from "~/utils/time";
 
 interface Props {
   rows: TimesheetRow[];
   settings: Settings;
-  timezone: string;
   onRowChange: (index: number, updates: Partial<TimesheetRow>) => void;
 }
 
 const modeConfig: { mode: RowMode; label: string; short: string }[] = [
   { mode: "workday", label: "Work day", short: "Work" },
   { mode: "pto", label: "PTO", short: "PTO" },
-  { mode: "holiday", label: "Company holiday", short: "Hol" },
+  { mode: "public_holiday", label: "Public holiday", short: "Pub" },
+  { mode: "company_holiday", label: "Company holiday", short: "Co" },
   { mode: "weekend", label: "Weekend", short: "WE" },
 ];
 
@@ -22,8 +22,10 @@ function isWorkMode(mode: RowMode): boolean {
 
 function getTypeOutput(mode: RowMode): string {
   switch (mode) {
-    case "holiday":
+    case "public_holiday":
       return "public holiday";
+    case "company_holiday":
+      return "company holiday";
     case "pto":
       return "PTO";
     default:
@@ -31,7 +33,7 @@ function getTypeOutput(mode: RowMode): string {
   }
 }
 
-export default function TimesheetTable({ rows, settings, timezone, onRowChange }: Props) {
+export default function TimesheetTable({ rows, settings, onRowChange }: Props) {
   const totals = rows.reduce(
     (acc, row) => {
       const hours = isWorkMode(row.mode)
@@ -76,12 +78,12 @@ export default function TimesheetTable({ rows, settings, timezone, onRowChange }
 
   return (
     <div>
-      <div className="mb-4 hidden print:table-cell">
-        <div className="flex gap-8 text-sm">
-          <span>Employee Name: {settings.name || "(not set)"}</span>
-          <span>Company: {settings.company}</span>
+      <div className="mb-2 hidden print:block">
+        <div className="text-sm">
+          <span>{getMonthName(settings.month)} {settings.year}</span>
+          {settings.name && <span> | {settings.name}</span>}
+          {settings.company && <span>, {settings.company}</span>}
         </div>
-        <div className="text-xs text-gray-500 mt-1">Timezone: {timezone}</div>
       </div>
 
       <table className="w-full border-collapse text-sm tabular-nums">
@@ -201,7 +203,7 @@ export default function TimesheetTable({ rows, settings, timezone, onRowChange }
                     value={row.notes}
                     onChange={(e) => onRowChange(index, { notes: e.target.value })}
                     className="w-full border rounded px-1 py-0.5 text-sm print:hidden"
-                    placeholder={row.mode === "holiday" ? "Holiday name" : ""}
+                    placeholder={row.mode === "public_holiday" || row.mode === "company_holiday" ? "Holiday name" : ""}
                   />
                   <span className="hidden print:inline">{row.notes}</span>
                 </td>

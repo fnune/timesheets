@@ -37,7 +37,7 @@ function initializeRows(
     if (isWeekend(date)) {
       mode = "weekend";
     } else if (holiday) {
-      mode = "holiday";
+      mode = holiday.type === "public" ? "public_holiday" : "company_holiday";
       notes = holiday.name;
     }
 
@@ -64,8 +64,6 @@ export default function App() {
   const [icsWarning, setIcsWarning] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const hasUnsavedChanges = useRef(false);
-
-  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const updateSettings = useCallback((updates: Partial<Settings>) => {
     setSettings((prev) => {
@@ -162,11 +160,14 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const parts = ["Timesheet"];
-    if (settings.name) parts.push(settings.name);
-    if (settings.company) parts.push(settings.company);
-    document.title = parts.join(" - ");
-  }, [settings.name, settings.company]);
+    const monthYear = `${getMonthName(settings.month)} ${settings.year}`;
+    let title = `Timesheet: ${monthYear}`;
+    if (settings.name || settings.company) {
+      const who = [settings.name, settings.company].filter(Boolean).join(", ");
+      title += ` | ${who}`;
+    }
+    document.title = title;
+  }, [settings.name, settings.company, settings.month, settings.year]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -237,7 +238,6 @@ export default function App() {
           <TimesheetTable
             rows={rows}
             settings={settings}
-            timezone={timezone}
             onRowChange={updateRow}
           />
         )}

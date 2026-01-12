@@ -93,9 +93,12 @@ export function parseICS(icsContent: string): Holiday[] {
       const month = dateStr.slice(4, 6);
       const day = dateStr.slice(6, 8);
 
+      let name = summaryMatch[1].trim().replace(/\\,/g, ",");
+      name = name.replace(/^Company Holiday\s*[-–—:]\s*/i, "");
+
       holidays.push({
         date: `${year}-${month}-${day}`,
-        name: summaryMatch[1].trim().replace(/\\,/g, ","),
+        name,
         type: "company",
       });
     }

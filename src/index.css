@@ -7,17 +7,31 @@
     display: none !important;
   }
 
-  body {
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
-  }
-
   @page {
     size: landscape;
-    margin: 1cm;
+    margin: 0.5cm;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  body,
+  .bg-gray-50,
+  .bg-gray-100 {
+    background: white !important;
   }
 
   table {
-    font-size: 10px;
+    font-size: 6px;
+  }
+
+  th,
+  td {
+    white-space: nowrap;
+    vertical-align: top;
+  }
+
+  th:last-child,
+  td:last-child {
+    white-space: normal;
   }
 }

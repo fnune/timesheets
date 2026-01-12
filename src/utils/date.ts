@@ -14,12 +14,9 @@ export function isWeekend(date: Date): boolean {
 }
 
 export function formatDateLong(date: Date): string {
-  return date.toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const weekday = date.toLocaleDateString("en-US", { weekday: "short" });
+  const day = date.getDate();
+  return `${weekday} ${day}`;
 }
 
 export function formatDateShort(date: Date): string {
