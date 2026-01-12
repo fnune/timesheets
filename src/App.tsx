@@ -41,7 +41,7 @@ function initializeRows(
       notes = holiday.name;
     }
 
-    const isWorkMode = mode === "workday" || mode === "oncall";
+    const isWorkMode = mode === "workday";
 
     return {
       date,
