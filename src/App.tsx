@@ -173,7 +173,7 @@ export default function App() {
     <div className="min-h-screen bg-gray-50">
       <header className="no-print sticky top-0 z-10 bg-white border-b shadow-sm px-4 py-2">
         <div className="flex items-center gap-4 flex-wrap">
-          <h1 className="font-semibold text-gray-800">Timesheet</h1>
+          <h1 className="font-semibold text-gray-800">Timesheets 🗓️</h1>
           <select
             value={settings.month}
             onChange={(e) => updateSettingsWithConfirm({ month: parseInt(e.target.value) })}

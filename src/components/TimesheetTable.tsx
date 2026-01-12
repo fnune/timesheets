@@ -10,10 +10,10 @@ interface Props {
 
 const modeConfig: { mode: RowMode; label: string; short: string }[] = [
   { mode: "workday", label: "Work day", short: "Work" },
-  { mode: "pto", label: "PTO", short: "PTO" },
-  { mode: "public_holiday", label: "Public holiday", short: "Pub" },
-  { mode: "company_holiday", label: "Company holiday", short: "Co" },
-  { mode: "weekend", label: "Weekend", short: "WE" },
+  { mode: "pto", label: "Paid time off", short: "PTO" },
+  { mode: "public_holiday", label: "Public holiday", short: "Pub. holiday" },
+  { mode: "company_holiday", label: "Company holiday", short: "Comp. holiday" },
+  { mode: "weekend", label: "Weekend", short: "Weekend" },
 ];
 
 function isWorkMode(mode: RowMode): boolean {
@@ -96,7 +96,7 @@ export default function TimesheetTable({ rows, settings, onRowChange }: Props) {
             <th className="border px-2 py-1 text-left w-20">Break End</th>
             <th className="border px-2 py-1 text-left w-20">End Time</th>
             <th className="border px-2 py-1 text-left hidden print:table-cell">Time off Type</th>
-            <th className="border px-2 py-1 text-right w-12">OT</th>
+            <th className="border px-2 py-1 text-right w-12">Overtime</th>
             <th className="border px-2 py-1 text-right w-16">Break</th>
             <th className="border px-2 py-1 text-right w-16">Hours</th>
             <th className="border px-2 py-1 text-left">Notes</th>

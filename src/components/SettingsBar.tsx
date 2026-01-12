@@ -103,7 +103,15 @@ export default function SettingsBar({
       </div>
       <div className="flex flex-wrap gap-2 items-end">
         <label className="flex flex-col flex-1 min-w-48">
-          <span className="text-xs text-gray-500">ICS calendar URL</span>
+          <span className="text-xs text-gray-500">
+            ICS calendar URL{" "}
+            <abbr
+              title="Calendar feed with company days off. Each VEVENT with a DTSTART date will be marked as a company holiday."
+              className="text-gray-400 no-underline cursor-help"
+            >
+              (?)
+            </abbr>
+          </span>
           <input
             type="text"
             value={settings.icsUrl}
