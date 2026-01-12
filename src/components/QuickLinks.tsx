@@ -64,6 +64,11 @@ export default function QuickLinks() {
                 <td className="border px-2 py-1">Default work end time</td>
               </tr>
               <tr>
+                <td className="border px-2 py-1 font-mono">workdayHours</td>
+                <td className="border px-2 py-1 font-mono">8</td>
+                <td className="border px-2 py-1">Expected hours per day (for overtime)</td>
+              </tr>
+              <tr>
                 <td className="border px-2 py-1 font-mono">icsUrl</td>
                 <td className="border px-2 py-1 font-mono break-all">https://...</td>
                 <td className="border px-2 py-1">Company holiday calendar (ICS format)</td>
