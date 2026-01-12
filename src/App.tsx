@@ -160,14 +160,13 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const monthYear = `${getMonthName(settings.month)} ${settings.year}`;
-    let title = `Timesheet: ${monthYear}`;
+    let title = "Timesheet";
     if (settings.name || settings.company) {
       const who = [settings.name, settings.company].filter(Boolean).join(", ");
-      title += ` | ${who}`;
+      title += `: ${who}`;
     }
     document.title = title;
-  }, [settings.name, settings.company, settings.month, settings.year]);
+  }, [settings.name, settings.company]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -248,7 +247,8 @@ export default function App() {
 
 function buildMailtoLink(settings: Settings): string {
   const monthName = getMonthName(settings.month);
-  const subject = `Timesheet - ${monthName} ${settings.year}${settings.name ? ` - ${settings.name}` : ""}`;
+  const who = [settings.name, settings.company].filter(Boolean).join(", ");
+  const subject = `Timesheet: ${monthName} ${settings.year}${who ? ` | ${who}` : ""}`;
   const body = `Hi,
 
 Please find my timesheet for ${monthName} ${settings.year} attached.
