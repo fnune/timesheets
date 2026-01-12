@@ -6,8 +6,8 @@ export default function QuickLinks() {
         <ol className="list-decimal list-inside space-y-1 text-gray-600">
           <li>Configure your settings below, add your manager to the recipients, then bookmark this page</li>
           <li>Each month, open your bookmark and mark any PTO days</li>
-          <li>Click "Print PDF" to save or print your timesheet</li>
-          <li>Click "Open email" to send it with a pre-filled message</li>
+          <li>Click "Print PDF" to save your timesheet as a PDF</li>
+          <li>Click "Open email" to draft a message, then attach the PDF and send</li>
         </ol>
         <p className="text-xs text-gray-500">
           The month/year are not saved in the URL, so your bookmark always opens to the previous month.
