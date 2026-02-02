@@ -168,6 +168,20 @@ export default function App() {
     document.title = title;
   }, [settings.name, settings.company]);
 
+  const handlePrint = useCallback(() => {
+    const originalTitle = document.title;
+    const monthName = getMonthName(settings.month);
+    const parts = [
+      "Timesheet",
+      `${monthName}-${settings.year}`,
+      settings.name,
+      settings.company,
+    ].filter(Boolean);
+    document.title = parts.join("_").replace(/ /g, "-");
+    window.print();
+    document.title = originalTitle;
+  }, [settings.month, settings.year, settings.name, settings.company]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="no-print sticky top-0 z-10 bg-white border-b shadow-sm px-4 py-2">
@@ -196,7 +210,7 @@ export default function App() {
           </select>
           <div className="flex-1" />
           <button
-            onClick={() => window.print()}
+            onClick={handlePrint}
             className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
           >
             Print PDF
