@@ -1,4 +1,4 @@
-import type { Settings, Country } from "~/types";
+import type { Country, Settings } from "~/types";
 
 interface Props {
   settings: Settings;

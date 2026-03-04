@@ -109,9 +109,21 @@ export function parseICS(icsContent: string): Holiday[] {
 
 const CORS_PROXIES = [
   (url: string) => url,
-  (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
   (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  (url: string) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
 ];
+
+const PROXY_TIMEOUT_MS = 2000;
+
+async function fetchWithTimeout(url: string, timeoutMs: number): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { signal: controller.signal });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
 
 export async function fetchCompanyHolidays(icsUrl: string): Promise<Holiday[]> {
   let lastError: Error | null = null;
@@ -119,7 +131,7 @@ export async function fetchCompanyHolidays(icsUrl: string): Promise<Holiday[]> {
   for (const proxyFn of CORS_PROXIES) {
     const proxiedUrl = proxyFn(icsUrl);
     try {
-      const response = await fetch(proxiedUrl);
+      const response = await fetchWithTimeout(proxiedUrl, PROXY_TIMEOUT_MS);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
@@ -141,17 +153,19 @@ export async function fetchCompanyHolidays(icsUrl: string): Promise<Holiday[]> {
 export function validateHolidaysForYear(
   holidays: Holiday[],
   year: number
-): { valid: boolean; message?: string } {
+): { valid: boolean; message?: string; count?: number } {
   const yearHolidays = holidays.filter((h) => h.date.startsWith(String(year)));
 
   if (yearHolidays.length === 0) {
+    const availableYears = [...new Set(holidays.map((h) => h.date.slice(0, 4)))].sort();
+    const yearList = availableYears.length > 0 ? ` (calendar has: ${availableYears.join(", ")})` : "";
     return {
       valid: false,
-      message: `No company holidays found for ${year}`,
+      message: `No company holidays for ${year}${yearList}.`,
     };
   }
 
-  return { valid: true };
+  return { valid: true, count: yearHolidays.length };
 }
 
 export function mergeHolidays(

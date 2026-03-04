@@ -39,11 +39,31 @@ export function getDefaultSettings(): Settings {
   };
 }
 
+const STORAGE_KEYS: (keyof Settings)[] = [
+  "name",
+  "company",
+  "country",
+  "region",
+  "start",
+  "breakStart",
+  "breakEnd",
+  "end",
+  "workdayHours",
+  "icsUrl",
+  "emailTo",
+];
+
+function pickStorageKeys<T extends Partial<Settings>>(obj: T): Partial<Settings> {
+  return Object.fromEntries(
+    STORAGE_KEYS.filter((key) => key in obj).map((key) => [key, obj[key]])
+  );
+}
+
 export function loadSettingsFromStorage(): Partial<Settings> {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      return JSON.parse(stored);
+      return pickStorageKeys(JSON.parse(stored));
     }
   } catch {
     // ignore
@@ -53,7 +73,7 @@ export function loadSettingsFromStorage(): Partial<Settings> {
 
 export function saveSettingsToStorage(settings: Settings): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(pickStorageKeys(settings)));
   } catch {
     // ignore
   }

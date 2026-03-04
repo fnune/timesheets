@@ -123,12 +123,14 @@ describe("filterHolidaysByRegion", () => {
 });
 
 describe("validateHolidaysForYear", () => {
-  it("returns valid when holidays exist for year", () => {
+  it("returns valid with count when holidays exist for year", () => {
     const holidays: Holiday[] = [
       { date: "2025-12-25", name: "Christmas", type: "company" },
+      { date: "2025-12-31", name: "New Year's Eve", type: "company" },
     ];
     const result = validateHolidaysForYear(holidays, 2025);
     expect(result.valid).toBe(true);
+    expect(result.count).toBe(2);
   });
 
   it("returns invalid when no holidays for year", () => {
@@ -138,6 +140,17 @@ describe("validateHolidaysForYear", () => {
     const result = validateHolidaysForYear(holidays, 2025);
     expect(result.valid).toBe(false);
     expect(result.message).toContain("2025");
+  });
+
+  it("includes available years in message when no holidays for year", () => {
+    const holidays: Holiday[] = [
+      { date: "2024-12-25", name: "Christmas", type: "company" },
+      { date: "2026-01-01", name: "New Year", type: "company" },
+    ];
+    const result = validateHolidaysForYear(holidays, 2025);
+    expect(result.valid).toBe(false);
+    expect(result.message).toContain("2024");
+    expect(result.message).toContain("2026");
   });
 });
 

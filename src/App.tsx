@@ -14,6 +14,7 @@ import {
   filterHolidaysByRegion,
   mergeHolidays,
   validateHolidaysForYear,
+  parseICS,
 } from "~/utils/holidays";
 import SettingsBar from "~/components/SettingsBar";
 import TimesheetTable from "~/components/TimesheetTable";
@@ -61,8 +62,9 @@ export default function App() {
   const [countries, setCountries] = useState<Country[]>([]);
   const [regions, setRegions] = useState<string[]>([]);
   const [holidays, setHolidays] = useState<Map<string, Holiday>>(new Map());
-  const [icsWarning, setIcsWarning] = useState<string | null>(null);
+  const [icsStatus, setIcsStatus] = useState<{ message: string; type: "success" | "warning"; showUpload?: boolean } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [uploadedIcsContent, setUploadedIcsContent] = useState<string | null>(null);
   const hasUnsavedChanges = useRef(false);
 
   const updateSettings = useCallback((updates: Partial<Settings>) => {
@@ -104,7 +106,7 @@ export default function App() {
   useEffect(() => {
     const loadHolidays = async () => {
       setLoading(true);
-      setIcsWarning(null);
+      setIcsStatus(null);
 
       const publicHolidays: PublicHoliday[] = [];
       let companyHolidays: Holiday[] = [];
@@ -119,17 +121,25 @@ export default function App() {
         console.error("Failed to fetch public holidays:", e);
       }
 
-      if (settings.icsUrl) {
+      if (uploadedIcsContent) {
+        companyHolidays = parseICS(uploadedIcsContent);
+        const validation = validateHolidaysForYear(companyHolidays, settings.year);
+        if (!validation.valid) {
+          setIcsStatus({ message: validation.message || "Invalid ICS data.", type: "warning" });
+        } else {
+          setIcsStatus({ message: `Found ${validation.count} company holidays for ${settings.year}.`, type: "success" });
+        }
+      } else if (settings.icsUrl) {
         try {
           companyHolidays = await fetchCompanyHolidays(settings.icsUrl);
           const validation = validateHolidaysForYear(companyHolidays, settings.year);
           if (!validation.valid) {
-            setIcsWarning(validation.message || "Invalid ICS data");
+            setIcsStatus({ message: validation.message || "Invalid ICS data.", type: "warning" });
+          } else {
+            setIcsStatus({ message: `Found ${validation.count} company holidays for ${settings.year}.`, type: "success" });
           }
-        } catch (e) {
-          setIcsWarning(
-            e instanceof Error ? e.message : "Failed to load company holidays (CORS blocked? Try pasting ICS content directly)"
-          );
+        } catch {
+          setIcsStatus({ message: "Couldn't fetch company holidays.", type: "warning", showUpload: true });
         }
       }
 
@@ -140,7 +150,7 @@ export default function App() {
     };
 
     loadHolidays();
-  }, [settings.year, settings.country, settings.region, settings.icsUrl]);
+  }, [settings.year, settings.country, settings.region, settings.icsUrl, uploadedIcsContent]);
 
   useEffect(() => {
     if (!loading) {
@@ -236,9 +246,48 @@ export default function App() {
             onSettingsChange={updateSettings}
             onDestructiveChange={updateSettingsWithConfirm}
           />
-          {icsWarning && (
-            <div className="p-2 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded text-sm">
-              Warning: {icsWarning}
+          {icsStatus && (
+            <div className={`p-2 rounded text-sm ${
+              icsStatus.type === "success"
+                ? "bg-green-100 border border-green-400 text-green-800"
+                : "bg-yellow-100 border border-yellow-400 text-yellow-800"
+            }`}>
+              {icsStatus.message}
+              {icsStatus.showUpload && settings.icsUrl && (
+                <span>
+                  {" "}However, you can{" "}
+                  <a
+                    href={settings.icsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline"
+                  >
+                    download them manually from {new URL(settings.icsUrl).hostname}
+                  </a>
+                  {" "}and then{" "}
+                  <label className="underline cursor-pointer">
+                    upload them here
+                    <input
+                      type="file"
+                      accept=".ics,text/calendar"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                          if (typeof reader.result === "string") {
+                            setUploadedIcsContent(reader.result);
+                          }
+                        };
+                        reader.readAsText(file);
+                        e.target.value = "";
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                  .
+                </span>
+              )}
             </div>
           )}
         </div>
