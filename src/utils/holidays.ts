@@ -150,6 +150,19 @@ export async function fetchCompanyHolidays(icsUrl: string): Promise<Holiday[]> {
   throw lastError || new Error("Failed to fetch company holidays");
 }
 
+export function formatHolidayStatus(
+  holidays: Holiday[],
+  year: number,
+  month: number,
+  monthName: string
+): string {
+  const yearCount = holidays.filter((h) => h.date.startsWith(String(year))).length;
+  const monthPrefix = `${year}-${String(month + 1).padStart(2, "0")}`;
+  const monthCount = holidays.filter((h) => h.date.startsWith(monthPrefix)).length;
+  const yearNote = monthCount === 0 ? ` (${yearCount} for the year)` : "";
+  return `Found ${monthCount} company holidays for ${monthName} ${year}${yearNote}.`;
+}
+
 export function validateHolidaysForYear(
   holidays: Holiday[],
   year: number

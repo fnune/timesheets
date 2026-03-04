@@ -4,6 +4,7 @@ import {
   getRegionsFromHolidays,
   filterHolidaysByRegion,
   validateHolidaysForYear,
+  formatHolidayStatus,
   mergeHolidays,
 } from "./holidays";
 import type { PublicHoliday, Holiday } from "~/types";
@@ -119,6 +120,32 @@ describe("filterHolidaysByRegion", () => {
     const filtered = filterHolidaysByRegion(holidays, "DE-BE");
     expect(filtered).toHaveLength(1);
     expect(filtered[0].name).toBe("New Year");
+  });
+});
+
+describe("formatHolidayStatus", () => {
+  it("shows month count when holidays exist for month", () => {
+    const holidays: Holiday[] = [
+      { date: "2026-02-15", name: "Holiday 1", type: "company" },
+      { date: "2026-02-20", name: "Holiday 2", type: "company" },
+    ];
+    const result = formatHolidayStatus(holidays, 2026, 1, "February");
+    expect(result).toBe("Found 2 company holidays for February 2026.");
+  });
+
+  it("shows year count when no holidays for month", () => {
+    const holidays: Holiday[] = [
+      { date: "2026-05-25", name: "Memorial Day", type: "company" },
+      { date: "2026-12-25", name: "Christmas", type: "company" },
+    ];
+    const result = formatHolidayStatus(holidays, 2026, 1, "February");
+    expect(result).toBe("Found 0 company holidays for February 2026 (2 for the year).");
+  });
+
+  it("handles zero holidays for both month and year", () => {
+    const holidays: Holiday[] = [];
+    const result = formatHolidayStatus(holidays, 2026, 1, "February");
+    expect(result).toBe("Found 0 company holidays for February 2026 (0 for the year).");
   });
 });
 

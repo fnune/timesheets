@@ -14,6 +14,7 @@ import {
   filterHolidaysByRegion,
   mergeHolidays,
   validateHolidaysForYear,
+  formatHolidayStatus,
   parseICS,
 } from "~/utils/holidays";
 import SettingsBar from "~/components/SettingsBar";
@@ -121,13 +122,18 @@ export default function App() {
         console.error("Failed to fetch public holidays:", e);
       }
 
+      const setIcsSuccess = (holidays: Holiday[]) => {
+        const message = formatHolidayStatus(holidays, settings.year, settings.month, getMonthName(settings.month));
+        setIcsStatus({ message, type: "success" });
+      };
+
       if (uploadedIcsContent) {
         companyHolidays = parseICS(uploadedIcsContent);
         const validation = validateHolidaysForYear(companyHolidays, settings.year);
         if (!validation.valid) {
           setIcsStatus({ message: validation.message || "Invalid ICS data.", type: "warning" });
         } else {
-          setIcsStatus({ message: `Found ${validation.count} company holidays for ${settings.year}.`, type: "success" });
+          setIcsSuccess(companyHolidays);
         }
       } else if (settings.icsUrl) {
         try {
@@ -136,7 +142,7 @@ export default function App() {
           if (!validation.valid) {
             setIcsStatus({ message: validation.message || "Invalid ICS data.", type: "warning" });
           } else {
-            setIcsStatus({ message: `Found ${validation.count} company holidays for ${settings.year}.`, type: "success" });
+            setIcsSuccess(companyHolidays);
           }
         } catch {
           setIcsStatus({ message: "Couldn't fetch company holidays.", type: "warning", showUpload: true });
